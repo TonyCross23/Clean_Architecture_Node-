@@ -21,6 +21,95 @@ model User {
   password String
 }
 
+model Customer {
+  id            Int      @id @default(autoincrement())
+  customer_name String
+  email         String
+  phone         String
+  address       String
+  createdAt     DateTime @default(now()) @map("created_at")
+  sales         Sale[]
+}
+
+model Sale {
+  id         Int      @id @default(autoincrement())
+  mobileId   Int      @map("mobile_id")
+  customerId Int      @map("customer_id")
+  saleDate   DateTime @default(now()) @map("sale_date")
+  salePrice  String
+  notes      String?  @db.Text
+  mobile     Mobile   @relation(fields: [mobileId], references: [id])
+  customer   Customer @relation(fields: [customerId], references: [id])
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @default(now()) @map("updated_at")
+}
+
+model Category {
+  id            Int      @id @default(autoincrement())
+  category_name String   @db.VarChar(50)
+  description   String?  @db.Text
+  createdAt     DateTime @default(now()) @map("created_at")
+  mobiles       Mobile[]
+}
+
+model Mobile {
+  id              Int         @id @default(autoincrement())
+  categoryId      Int         @map("category_id")
+  modelName       String      @db.VarChar(100)
+  brand           String      @db.VarChar(50)
+  condition       Condition
+  price           String
+  storageCapacity String?     @map("storage_capacity") @db.VarChar(20)
+  ram             String?     @db.VarChar(20)
+  color           String?     @db.VarChar(30)
+  description     String?     @db.Text
+  imei            String      @unique @db.VarChar(15)
+  status          Status      @default(Available)
+  addedAt         DateTime    @default(now()) @map("added_at")
+  category        Category    @relation(fields: [categoryId], references: [id])
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @default(now()) @map("updated_at")
+  sales           Sale[]
+  inventory       Inventory[]
+}
+
+model Inventory {
+  id         Int      @id @default(autoincrement())
+  mobileId   Int      @map("mobile_id")
+  action     Action
+  quantity   Int
+  actionDate DateTime @default(now()) @map("action_date")
+  notes      String?  @db.Text
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @default(now()) @map("updated_at")
+  mobile     Mobile   @relation(fields: [mobileId], references: [id])
+}
+
+enum Condition {
+  LikeNew @map("Like New")
+  Good
+  Fair
+  Poor
+}
+
+enum Status {
+  Available
+  Sold
+  Reserved
+}
+
+enum PaymentMethod {
+  Cash
+  Card
+  Online
+}
+
+enum Action {
+  Add
+  Sell
+  Return
+}
+
 model Product {
   id          Int    @id @default(autoincrement())
   name        String
@@ -30,7 +119,7 @@ model Product {
 }
 
 model Test {
-    id          Int    @id @default(autoincrement())
-    name        String
-    description String
+  id          Int    @id @default(autoincrement())
+  name        String
+  description String
 }

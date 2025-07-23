@@ -1,22 +1,27 @@
 import "reflect-metadata"
 import express from 'express'
-import router from './router'
-import authRouter from "./router/authRouter";
-import testRoute from "./test/route/testRoute";
-import productRoute from "./product/route/route";
-import { errorHandler } from "./test/middleware/AppError";
+import morgan from "morgan";
+import log from "./logger/log";
+import router from "./router";
+import { errorHandler } from "./middlewares/appError";
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 6000;
 
 const app = express();
 app.use(express.json());
 
-app.use("/api/v1", router)
-app.use("/api/v1", authRouter)
-app.use("/api/v1", testRoute)
-app.use("/api/v1", productRoute)
+app.use(morgan("dev", {
+  stream: {
+    write: (message: string) => log.info(message.trim())
+  }
+}));
+
+
+app.use("/api/v1", router);
 
 app.use(errorHandler)
+
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`)
+    log.info(`🚀 http://localhost:${PORT} \n` +
+             `If you want to stop the server, press Ctrl + C`)
 })
